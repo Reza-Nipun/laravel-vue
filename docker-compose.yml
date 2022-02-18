@@ -1,0 +1,67 @@
+version: "3.8"
+services:
+  nginx:
+    image: library/nginx:alpine
+    container_name: laravel-vue-nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./:/var/www/html:cached
+      - ./.docker/nginx:/etc/nginx/conf.d
+      - ./.docker/nginx/ssl:/etc/nginx/conf.d/ssl
+    depends_on:
+      - app
+    networks:
+      - laravel-vue-network
+
+  app:
+    build:
+      context: ./.docker/php
+      dockerfile: Dockerfile
+    container_name: laravel-vue-app
+    restart: unless-stopped
+    volumes:
+      - ./:/var/www/html:cached
+      - ./.docker/php/php-fpm.ini:/usr/local/etc/php/conf.d/custom.ini
+      - ~/.ssh:/root/.ssh
+    depends_on:
+      - mariadb
+      - redis
+    networks:
+      - laravel-vue-network
+
+  mariadb:
+    image: mariadb:10.5.5
+    container_name: laravel-vue-mariadb
+    restart: unless-stopped
+    ports:
+      - 3306:3306
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_USER=laravel-vue
+      - MYSQL_PASSWORD=laravel-vue
+      - MYSQL_DATABASE=laravel_vue_docker
+    networks:
+      - laravel-vue-network
+
+  redis:
+    image: redis:alpine
+    container_name: laravel-vue-redis
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - 6379:6379
+    networks:
+      - laravel-vue-network
+
+networks:
+  laravel-vue-network:
+    driver: bridge
+
+volumes:
+  laravel-vue-volume:
+    driver: local
