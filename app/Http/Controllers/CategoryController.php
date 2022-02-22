@@ -55,7 +55,7 @@ class CategoryController extends Controller
 //                    ->subject('Category Created');
 //        });
 
-//        Notification::send(['nipunsarker56@gmail.com'], new CategoryCreatedNotification($category));
+//        Notification::send(['nipunsarker56@gmail.com'], new CategoryCreatedNotification($category->toArray()));
         Notification::route('mail', 'nipunsarker56@gmail.com')->notify(new CategoryCreatedNotification($category->toArray()));
         return response()->json('success', 200);
     }

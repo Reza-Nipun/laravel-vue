@@ -42,10 +42,14 @@ class CategoryCreatedNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
-                    ->line('The introduction to the notification. Category Name: ')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+        //  return (new MailMessage)
+        //              ->line('The introduction to the notification. Category Name: '.$this->categoryData['name'])
+        //              ->action('Notification Action', url('/'))
+        //              ->line('Thank you for using our application!');
+
+       $name = $this->categoryData['name'];
+
+       return (new MailMessage)->view('emails.category_created', compact('name'));
     }
 
     /**
